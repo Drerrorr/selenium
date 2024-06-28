@@ -16,10 +16,17 @@ from PIL import Image
 import requests
 from io import BytesIO
 import time
+import numpy as np
+import os
 driver = webdriver.Chrome()
 driver.get('https://exam.edu.foshan.gov.cn/iexamfs/KsLoginSuccessAction.action')
 time.sleep(1)
 pyautogui.keyDown('Enter')
+cookies = driver.get_cookies()
+desired_cookie_name = 'your_cookie_name'
+cookies_with_desired_name = [cookie for cookie in cookies if cookie['value'] == desired_cookie_name]
+print(cookies)
+print(cookies_with_desired_name)
 src = driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[3]/td[2]/img').get_attribute('src')
 print(src)
 captcha_url = src    #获取图片的地址（src）
@@ -34,35 +41,49 @@ headers = {
     'Sec-Fetch-Dest':'image',
     'Referer':'https://exam.edu.foshan.gov.cn/iexamfs/KsLoginSuccessAction.action',
     'Accept-Encoding':'gzip, deflate, br, zstd',
-    'Accept-Language':'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+    'Accept-Language':'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Cookie': 'SESSION=7f17f8ff-c71c-4fec-8b95-80da0d0cfae1; name=value'
 
 }
 response = requests.get(url,headers=headers)
-if response.status_code == 200:
-    # 使用BytesIO创建一个可读的二进制流
-    image_stream = BytesIO(response.content)
-    print(response.content)
-    # 使用Pillow打开图片
-    img = Image.open(image_stream)
-    # 保存图片为BMP格式
-    img.save('L:\pycham\pycharm demo\demo2\pic', 'BMP')
-else:
-    print('Failed to retrieve image')
+image_stream = BytesIO(response.content)
+print(response.content)
+ # 使用Pillow打开图片
+img = Image.open(image_stream)
+# 保存图片为BMP格式
+img.save('L:\\pycham\\pycharm demo\\demo2\\pic\\serialno.bmp', 'BMP')
+image = Image.open('L:\\pycham\\pycharm demo\\demo2\\pic\\serialno.bmp')
+image = image.convert('L')
+image = np.asarray(image)
+print(image.shape)
+image = (image > 135) * 255
+split_parts = [
+    [36, 46],
+    [51, 61],
+    [68, 78],
+    [84, 94]
+]
+letters = []
+save_folder = 'L:\\pycham\\pycharm demo\\demo2\\pic1'
+for part,idx in split_parts:
+
+    letter = image[7:, part[0]: part[1]]
+    letters.append(letter.reshape(10*23))
+    file_path = os.path.join(save_folder, f'letter_{idx}.png')
+'''
+def load_dataset():
+    X = []
+    y = []
+
+    for i in range(70):
+        path = "./train/%d%d.png" % (i / 7, i % 7)
+        pix = np.asarray(Image.open(path).convert("L"))
+        X.append(pix.reshape(10*23))
+        y.append(int(i / 7))
+    return np.asarray(X), np.asarray(y)
+'''
 
 '''
-response = requests.get(captcha_url)
-image_data = response.content
-print(type(image_data))
-image_bytes = bytes(image_data)
-print(image_bytes[:8])
-try:
-    captcha_image = Image.open(
-        BytesIO(image_data))
-    captcha_image.show()
-except IOError as e:
-    print(e)
-
-
 #将目标定向在账号框
 driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[1]/td[2]/input').send_keys('123456789')
 time.sleep(0.5)
@@ -71,14 +92,4 @@ driver.find_element(By.NAME,'keyvalue').send_keys('123456789')
 time.sleep(0.5)
 '''
 
-'''
-captcha_url = src    #获取图片的地址（src）
-response = requests.get(captcha_url)
-captcha_image = Image.open(BytesIO(response.content))
-text = pytesseract.image_to_string(captcha_image, lang='eng')
-captcha_code = ''.join(filter(str.isalnum, text))
-driver.find_element(By.NAME,'rand').send_keys(captcha_code)
-time.sleep(0.5)
-time.sleep(200000)
-#driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[4]/td/img[1]').click()
-'''
+
