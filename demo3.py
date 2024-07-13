@@ -22,11 +22,9 @@ driver = webdriver.Chrome()
 driver.get('https://exam.edu.foshan.gov.cn/iexamfs/KsLoginSuccessAction.action')
 time.sleep(1)
 pyautogui.keyDown('Enter')
-cookies = driver.get_cookies()
-desired_cookie_name = 'your_cookie_name'
-cookies_with_desired_name = [cookie for cookie in cookies if cookie['value'] == desired_cookie_name]
-print(cookies)
-print(cookies_with_desired_name)
+cookies = driver.get_cookies()#获取所有cookie
+cookie_value = next((cookie['value'] for cookie in cookies if cookie['name'] == 'SESSION'), None)#筛选出SESSION的值
+print(cookie_value)
 src = driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[3]/td[2]/img').get_attribute('src')
 print(src)
 captcha_url = src    #获取图片的地址（src）
@@ -42,10 +40,10 @@ headers = {
     'Referer':'https://exam.edu.foshan.gov.cn/iexamfs/KsLoginSuccessAction.action',
     'Accept-Encoding':'gzip, deflate, br, zstd',
     'Accept-Language':'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Cookie': 'SESSION=7f17f8ff-c71c-4fec-8b95-80da0d0cfae1; name=value'
+    'Cookie': 'SESSION=%s; name=value' % cookie_value
 
 }
-response = requests.get(url,headers=headers)
+response = requests.get(url,headers=headers)#使用特定harders请求
 image_stream = BytesIO(response.content)
 print(response.content)
  # 使用Pillow打开图片
@@ -91,5 +89,4 @@ time.sleep(0.5)
 driver.find_element(By.NAME,'keyvalue').send_keys('123456789')
 time.sleep(0.5)
 '''
-
 
