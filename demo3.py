@@ -7,7 +7,6 @@
 # -*- coding: utf-8 -*-
 import sklearn
 import numpy
-import wget
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pyautogui
@@ -21,11 +20,11 @@ import os
 driver = webdriver.Chrome()
 driver.get('https://exam.edu.foshan.gov.cn/iexamfs/KsLoginSuccessAction.action')
 time.sleep(1)
-pyautogui.keyDown('Enter')
+pyautogui.keyDown('Enter')# 模拟按下回车键
 cookies = driver.get_cookies()#获取所有cookie
 cookie_value = next((cookie['value'] for cookie in cookies if cookie['name'] == 'SESSION'), None)#筛选出SESSION的值
 print(cookie_value)
-src = driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[3]/td[2]/img').get_attribute('src')
+src = driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[3]/td[2]/img').get_attribute('src')#获取src
 print(src)
 captcha_url = src    #获取图片的地址（src）
 url = src
@@ -46,15 +45,14 @@ headers = {
 response = requests.get(url,headers=headers)#使用特定harders请求
 image_stream = BytesIO(response.content)
 print(response.content)
- # 使用Pillow打开图片
-img = Image.open(image_stream)
-# 保存图片为BMP格式
-img.save('L:\\pycham\\pycharm demo\\demo2\\pic\\serialno.bmp', 'BMP')
+img = Image.open(image_stream) # 使用Pillow打开图片
+img.save('L:\\pycham\\pycharm demo\\demo2\\pic\\serialno.bmp', 'BMP')# 保存图片为BMP格式
 image = Image.open('L:\\pycham\\pycharm demo\\demo2\\pic\\serialno.bmp')
-image = image.convert('L')
-image = np.asarray(image)
+image = image.convert('L')#将图片转换为灰度图像
+image = np.asarray(image)#将图片转换为numpy数组
 print(image.shape)
 image = (image > 135) * 255
+
 split_parts = [
     [36, 46],
     [51, 61],
@@ -63,11 +61,12 @@ split_parts = [
 ]
 letters = []
 save_folder = 'L:\\pycham\\pycharm demo\\demo2\\pic1'
-for part,idx in split_parts:
+for idx in split_parts:
+    print(split_parts[0])
+    letter = image[1:10, split_parts[0]]
+    # letters.append(letter.reshape(10*24))
+    # file_path = os.path.join(save_folder, f'letter_{idx}.bmp')
 
-    letter = image[7:, part[0]: part[1]]
-    letters.append(letter.reshape(10*23))
-    file_path = os.path.join(save_folder, f'letter_{idx}.png')
 '''
 def load_dataset():
     X = []
