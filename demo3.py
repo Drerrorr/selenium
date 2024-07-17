@@ -17,6 +17,7 @@ from io import BytesIO
 import time
 import numpy as np
 import os
+
 driver = webdriver.Chrome()
 driver.get('https://exam.edu.foshan.gov.cn/iexamfs/KsLoginSuccessAction.action')
 time.sleep(1)
@@ -42,7 +43,7 @@ headers = {
     'Cookie': 'SESSION=%s; name=value' % cookie_value
 
 }
-response = requests.get(url,headers=headers)#使用特定harders请求
+response = requests.get(url,headers=headers)#使用特定headers请求
 image_stream = BytesIO(response.content)
 print(response.content)
 img = Image.open(image_stream) # 使用Pillow打开图片
@@ -52,7 +53,6 @@ image = image.convert('L')#将图片转换为灰度图像
 image = np.asarray(image)#将图片转换为numpy数组
 print(image.shape)
 image = (image > 135) * 255
-
 split_parts = [
     [36, 46],
     [51, 61],
@@ -61,11 +61,9 @@ split_parts = [
 ]
 letters = []
 save_folder = 'L:\\pycham\\pycharm demo\\demo2\\pic1'
-for idx in split_parts:
-    print(split_parts[0])
-    letter = image[1:10, split_parts[0]]
-    # letters.append(letter.reshape(10*24))
-    # file_path = os.path.join(save_folder, f'letter_{idx}.bmp')
+for part in split_parts:
+    letter = image[1:10, part[0]:part[1]]
+    letters.append(letter.reshape(10*24))
 
 '''
 def load_dataset():
@@ -73,13 +71,18 @@ def load_dataset():
     y = []
 
     for i in range(70):
-        path = "./train/%d%d.png" % (i / 7, i % 7)
+        path = "./train/%d%d.bmp" % (i / 7, i % 7)
         pix = np.asarray(Image.open(path).convert("L"))
         X.append(pix.reshape(10*23))
         y.append(int(i / 7))
     return np.asarray(X), np.asarray(y)
-'''
 
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier()
+knn.fit(X, y)
+knn.predict(letters)
+'''
 '''
 #将目标定向在账号框
 driver.find_element(By.XPATH,'/html/body/form/table/tbody/tr/td[2]/table/tbody/tr[4]/td/table/tbody/tr/td/table/tbody/tr[1]/td[2]/input').send_keys('123456789')
