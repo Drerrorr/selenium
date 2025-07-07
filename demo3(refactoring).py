@@ -1,10 +1,3 @@
-# -*- coding =uft-8 -*-
-# @TIME ： 2020/12/31 23:01
-# @Author ： lkl
-# @File ： demo3.py
-# @Software: PyCharm
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from selenium import webdriver
 import time
 import ddddocr
